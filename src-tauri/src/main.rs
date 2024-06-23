@@ -6,7 +6,7 @@ use std::fs::{File,OpenOptions};
 use std::io::{self, BufRead,Write};
 use std::fs;
 use zip::result::ZipError;
-use zip::CompressionMethod;
+use zip::{CompressionMethod, ZipArchive};
 use std::io::BufReader;
 use std::path::Path;
 
@@ -15,11 +15,15 @@ use zip::read::ZipFile;
 struct var{
   flag:bool,
 }
-fn fn_nice() -> zip::read::ZipFile{
+fn fn_nice(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
+  archive.by_index(i.try_into().unwrap()).unwrap()
   
 }
-fn fn_not_nice() -> zip::read::ZipFile{
-
+fn fn_not_nice(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
+  let mut pswd = String::new();
+  println!("The zip is password encrypted\nPlease Enter the Password: ");
+  io::stdin().read_line(&mut pswd).expect("Error reading the user input");
+  archive.by_index_decrypt(i,pswd.as_bytes()).unwrap()
 }
 fn main() {
   tauri::Builder::default()
@@ -43,8 +47,9 @@ fn basic_extrn(args: Vec<String>){
   let mut password = "hello".to_string();
   // let mut decrypted_file = ZipFile::new();
   for i in 0..archive.len(){
+    let mut new_archive = zip::ZipArchive::new(File::open(&zipname).unwrap()).unwrap();
       let file = match archive.by_index(i){
-          Ok(mut file) => fn_nice(),
+          Ok(mut file) => fn_nice(i,&mut new_archive),
           Err(err)=> 
               // ZipError::Io(_) => {
               //     eprintln!("IO error in opening the zip!! {:?}",err);
@@ -53,7 +58,8 @@ fn basic_extrn(args: Vec<String>){
               //     eprint!("File not found!! {:?}",err);
               // }
               {
-                  fn_not_nice()
+                
+                  fn_not_nice(i,&mut new_archive)
               //    archive.by_index_decrypt(i, &password.as_bytes()).expect("Failed!!!").unwrap()
               },
               
@@ -96,7 +102,10 @@ fn read_metadata(file:ZipFile){
         println!("File size uncompressed: {}",file.size());
         println!("Is directory: {}",file.is_dir());
 }
-
+#[tauri::command]
+fn test_button()->String{
+  "Button is working....".to_string()
+}
 #[tauri::command]
 fn config_reader(){
     let path = "config.txt";

@@ -9,6 +9,8 @@ import {createStyles,useMantineTheme} from '@mantine/styles'
 import {MemoryRouter, NavLink, Route,Routes} from 'react-router-dom';
 import Home from './Home';
 import Settings from './Settings';
+import About from './About';
+import Exit from './Exit';
 
 function App() {
 
@@ -20,7 +22,18 @@ function App() {
   },{path: 'settings',
     name: 'Settings',
     exact: true,
-    component: Settings}]
+    component: Settings},
+    {
+      path: 'about',
+      name: 'About',
+      exact: true,
+      component: About
+    },{
+      path: 'exit',
+      name: 'Exit',
+      exact: true,
+      component: Exit
+    }]
   const [result,setResult] = useState('');
 
   //nav bar
@@ -50,7 +63,7 @@ function App() {
       }
     },
     navLinkActive: {
-      backgroundColor: colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[1],
+      backgroundColor: colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
     }
   }));
 
@@ -87,7 +100,7 @@ function App() {
                   mr= "xl"
                   />
                </MediaQuery>
-               <Text>WELCOME....</Text>
+               <Text tt="uppercase" ta="center"> Welcome.... </Text>
                <div style={{marginLeft: "auto"}}>
                 <ActionIcon variant="default" onClick={() => toggleColorScheme()} size={30}>
                   {colorScheme === 'dark' ? <SunIcon/> : <MoonIcon/>}
@@ -97,7 +110,7 @@ function App() {
           </Header>
         }
         styles={theme => ({
-          main: {backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[0] },
+          main: {backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[0] },
 
         })}>
       {/* this is to give the routes . they are the only ones inside the AppShell as content everything else is just attributes or tags */}
