@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 
-use std::fs::{File,OpenOptions};
+use std::fs::{read, File, OpenOptions};
 use std::io::{self, BufRead,Write};
 use std::fs;
 use zip::result::ZipError;
@@ -27,7 +27,7 @@ fn fn_not_nice(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
 }
 fn main() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![config_reader])
+    .invoke_handler(tauri::generate_handler![config_read])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
@@ -106,39 +106,92 @@ fn read_metadata(file:ZipFile){
 fn test_button()->String{
   "Button is working....".to_string()
 }
-#[tauri::command]
-fn config_reader(){
-    let path = "config.txt";
-    let mut config_file = path;
-    let mut s = "dormammooo!!!";
-    // let reader = BufReader::new(config_file);
-    if let Ok(lines) = read_lines(config_file){
-        let mut vec_lines: Vec<String> = lines.flatten().collect(); //converts the iterator into a vector of strings.
-        vec_lines.insert(0, s.to_string());
-        if vec_lines[0]==s{
-            for line in &vec_lines{
+// #[tauri::command]
+// // fn config_reader(){
+// //     let path = "config.txt";
+// //     let mut config_file = path;
+// //     let mut s = "dormammooo!!!";
+// //     // let reader = BufReader::new(config_file);
+// //     if let Ok(lines) = read_lines(config_file){
+// //         let mut vec_lines: Vec<String> = lines.flatten().collect(); //converts the iterator into a vector of strings.
+// //         vec_lines.insert(0, s.to_string());
+// //         if vec_lines[0]==s{
+// //             for line in &vec_lines{
 
-                println!("{}",line);
-                // output.write(line.as_bytes()).expect("Error");
-                // writeln!(output,"{}",line);
+// //                 println!("{}",line);
+// //                 // output.write(line.as_bytes()).expect("Error");
+// //                 // writeln!(output,"{}",line);
+// //             }
+// //         }
+// //         else{
+// //         if vec_lines.len()>5{
+// //             vec_lines.pop();
+// //         }
+// //         let mut output = OpenOptions::new()
+// //             .write(true)
+// //             .truncate(true)
+// //             .open(config_file).unwrap();
+        
+// //         for line in &vec_lines{
+
+// //             println!("{}",line);
+// //             // output.write(line.as_bytes()).expect("Error");
+// //             // writeln!(output,"{}",line);
+// //         }
+// //     }
+// //     }
+    
+// // }
+fn decode_utf16le(data: &str) -> io::Result<String> {
+  // Convert UTF-16LE encoded string to UTF-8
+  let utf16_bytes: Vec<u16> = data.encode_utf16().collect();
+  let utf8_bytes = String::from_utf16_lossy(&utf16_bytes);
+  Ok(utf8_bytes.into())
+}
+
+#[tauri::command]
+fn config_read() -> Vec<String>{
+  let path = "C:\\Users\\akshi\\Downloads\\config.txt";
+  let mut config_file = path;
+  let mut vec_none: Vec<String> = vec![];
+  // let reader = BufReader::new(config_file);
+  if let Ok(lines) = read_lines(config_file){
+    // 
+    let mut vec_lines = Vec::new();
+
+        for line in lines {
+            if let Ok(utf16_line) = line {
+                let utf8_line = utf16_line.encode_utf16() // Convert to UTF-16 encoded bytes
+                    .filter(|&ch| ch != 0) // Filter out '\0' characters
+                    .collect::<Vec<u16>>(); // Collect into a vector of u16
+
+                let utf8_line = String::from_utf16_lossy(&utf8_line); // Convert UTF-16 to UTF-8 string
+                println!("{:?}",utf8_line);
+                vec_lines.push(utf8_line);
+                
             }
         }
-        else{
-        if vec_lines.len()>5{
-            vec_lines.pop();
-        }
-        let mut output = OpenOptions::new()
-            .write(true)
-            .truncate(true)
-            .open(config_file).unwrap();
-        
-        for line in &vec_lines{
-
-            println!("{}",line);
-            // output.write(line.as_bytes()).expect("Error");
-            // writeln!(output,"{}",line);
-        }
-    }
-    }
-    
+        vec_lines
+  }
+  else{
+    vec_none.push("Error reading the config file".to_string());
+    println!("{:?}",vec_none);
+    vec_none
+  }
+  
 }
+// fn config_read() -> Vec<String> {
+//   let path = "C:\\Users\\akshi\\Downloads\\config.txt"; // Replace with your actual file path
+//   let config_file = path;
+
+//   if let Ok(lines) = read_lines(config_file) {
+//       let vec_lines: io::Result<Vec<String>> = lines
+//           .map(|line| line.map(|l| decode_utf16le(&l).unwrap_or_else(|_| String::new())))
+//           .collect();
+//       vec_lines.unwrap()
+      
+//   } else {
+//       println!("Error opening config file");
+//       vec![]
+//   }
+// }

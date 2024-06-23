@@ -1,16 +1,22 @@
 import logo from './logo.svg';
-import React,{useState} from 'react';
+import React,{useState,useEffect} from 'react';
 import {invoke} from '@tauri-apps/api/tauri';
 import './App.css';
-import {AppShell, Navbar, Text, MediaQuery, Burger, ActionIcon, Group,MantineProvider} from '@mantine/core';
+import {AppShell, Navbar, Text, MediaQuery, Burger, ActionIcon, Group,MantineProvider,Button} from '@mantine/core';
 import {Header} from '@mantine/core';
 import { SunIcon,MoonIcon } from '@modulz/radix-icons';
 import {createStyles,useMantineTheme} from '@mantine/styles'
 import {MemoryRouter, NavLink, Route,Routes} from 'react-router-dom';
+import {open} from '@tauri-apps/api/dialog';
+
+
+
+
 import Home from './Home';
 import Settings from './Settings';
 import About from './About';
 import Exit from './Exit';
+
 
 function App() {
 
@@ -41,11 +47,23 @@ function App() {
   const defaultColorScheme = 'dark';
   // console.log(defaultColorScheme);
   const [colorScheme,setColorScheme] = useState(defaultColorScheme);
+  const [lines, setLines] = useState([]);
 
   //fn for changing the colorScheme
   const toggleColorScheme = value => {
     const newValue = value || (colorScheme === 'dark' ? 'light': 'dark');
     setColorScheme(newValue);
+  };
+
+  const handleopendialog = async () => {
+    console.log("button clicked");
+    try{
+      const selectedPath = await open();
+      
+    }
+    catch (err){
+      console.log(err);
+    }
   };
 
   //adding some custom styles
@@ -68,6 +86,17 @@ function App() {
   }));
 
   const { classes } = useStyles();
+  useEffect(() => {
+    async function fetchLines() {
+      try {
+        const response = await invoke('config_read');
+        setLines(response);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchLines();
+  }, []);
 
   return (
     <MantineProvider theme={{colorScheme: colorScheme, fontFamily: 'Open Sans, sans serif'}} withGlobalStyles >
@@ -111,8 +140,15 @@ function App() {
         }
         styles={theme => ({
           main: {backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[0] },
-
         })}>
+          <Group position = "center" height='200%'><Button onClick={handleopendialog}>Open</Button></Group>
+          <Group direction="vertical" align="center" style={{ marginTop: '20px' }}>
+         {lines.map((line, index) =>
+          <Button key={index} component={NavLink} className={classes.navLink} fullWidth>
+            {line}
+          </Button>
+        )}
+      </Group>
       {/* this is to give the routes . they are the only ones inside the AppShell as content everything else is just attributes or tags */}
         <Routes>{
           views.map((view,index) => <Route key = {index} exact = {view.exact} path={view.path} element = {<view.component/>}/>)
