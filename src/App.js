@@ -6,12 +6,11 @@ import {AppShell, Navbar, Text, MediaQuery, Burger, ActionIcon, Group,MantinePro
 import {Header} from '@mantine/core';
 import { SunIcon,MoonIcon } from '@modulz/radix-icons';
 import {createStyles,useMantineTheme} from '@mantine/styles'
-import {MemoryRouter, NavLink, Route,Routes} from 'react-router-dom';
+import {MemoryRouter, NavLink, Route,Routes,useNavigate} from 'react-router-dom';
 import {open} from '@tauri-apps/api/dialog';
 
 
-
-
+import Zip_extr from './Zip_extr';
 import Home from './Home';
 import Settings from './Settings';
 import About from './About';
@@ -20,6 +19,8 @@ import Exit from './Exit';
 
 function App() {
 
+  const [zipName,setZipname] = useState('');
+  // const navigate = useNavigate();
   const views = [{
     path: '/',
     name: 'Home',
@@ -39,7 +40,12 @@ function App() {
       name: 'Exit',
       exact: true,
       component: Exit
-    }]
+    },
+  {path: 'Zip_extr',
+      name: 'Zip_extr',
+      exact: true,
+      component: Zip_extr}]
+    
   const [result,setResult] = useState('');
 
   //nav bar
@@ -59,7 +65,9 @@ function App() {
     console.log("button clicked");
     try{
       const selectedPath = await open();
-      
+      console.log("Selected Path",selectedPath);
+      // setZipname(selectedPath);
+      // navigate('/Zip',{state: { zipName }});
     }
     catch (err){
       console.log(err);
@@ -141,14 +149,7 @@ function App() {
         styles={theme => ({
           main: {backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[0] },
         })}>
-          <Group position = "center" height='200%'><Button onClick={handleopendialog}>Open</Button></Group>
-          <Group direction="vertical" align="center" style={{ marginTop: '20px' }}>
-         {lines.map((line, index) =>
-          <Button key={index} component={NavLink} className={classes.navLink} fullWidth>
-            {line}
-          </Button>
-        )}
-      </Group>
+          
       {/* this is to give the routes . they are the only ones inside the AppShell as content everything else is just attributes or tags */}
         <Routes>{
           views.map((view,index) => <Route key = {index} exact = {view.exact} path={view.path} element = {<view.component/>}/>)
