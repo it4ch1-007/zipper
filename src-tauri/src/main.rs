@@ -22,7 +22,7 @@ struct ZipFileMetadata<'a>{
   comment: &'a [u8],
   data_size: u64,
   is_empty: bool,
-  total_size: u128,
+  // total_size: u128,
 }
 struct var{
   flag:bool,
@@ -34,7 +34,6 @@ fn fn_without_pswd(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
   
 }
 fn fn_pswd(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
-  println!("With pswd called..");
   let mut pswd = String::new();
   println!("The zip is password encrypted\nPlease Enter the Password: ");
   io::stdin().read_line(&mut pswd).expect("Error reading the user input");
@@ -42,11 +41,15 @@ fn fn_pswd(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
 }
 fn main() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![config_read,read_metadata,read_zip_files,extract_zip])
+    .invoke_handler(tauri::generate_handler![config_read,read_metadata,read_zip_files,extract_zip,error_printer])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
 
+#[tauri::command]
+fn error_printer(){
+  print!("Error occured");
+}
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
 where P: AsRef<Path>, {
     let file = File::open(filename)?;
@@ -118,7 +121,7 @@ fn read_metadata(archive: String) -> String{
       let comment = zip_archive.comment();
       let prepended_data_size = zip_archive.offset();
       let is_empty = zip_archive.is_empty();
-      let total_files_size = zip_archive.decompressed_size().unwrap();
+      // let total_files_size = zip_archive.decompressed_size().unwrap();
       // for i in 0..num_entries{
       // let aes_key = zip_archive.get_aes_verification_key_and_salt(i);
       // }
@@ -127,7 +130,7 @@ fn read_metadata(archive: String) -> String{
         comment:comment,
         data_size: prepended_data_size,
         is_empty: is_empty,
-        total_size: total_files_size,
+        // total_size: total_files_size,
 
       };
 

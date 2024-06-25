@@ -4,9 +4,10 @@ import { createStyles} from '@mantine/core';
 import { ScrollArea } from '@mantine/core';
 import { Button } from '@mantine/core';
 import {Modal,TextInput} from '@mantine/core';
-import { Box } from '@mantine/core';
 import { invoke } from '@tauri-apps/api';
+import {Alert} from '@mantine/core';
 // import { Notification  } from '@mantine/core';
+
 
 function Zip_extr() {
     const location = useLocation();
@@ -19,26 +20,10 @@ function Zip_extr() {
     const [responseMetadata,setresponseMetadata] = useState('');
     const [responseTree,setresponseTree] = useState('');
     const [fileNames, setFileNames] = useState([]);
+    const [showAlert,setShowAlert] = useState(false);
     // const [notificationPermission, setNotificationPermission] = useState('default');
 
     
-    // const requestNotificationPermission = () => {
-    //     if ('Notification' in window) {
-    //       Notification.requestPermission().then((permission) => {
-    //         setNotificationPermission(permission);
-    //       });
-    //     }
-    //   };
-    //   const showNotification = () => {
-    //     if (notificationPermission === 'granted') {
-    //       new Notification('Function Execution Complete', {
-    //         body: 'Your function has finished executing.',
-    //         icon: 'path/to/icon.png', // Optional icon for the notification
-    //       });
-    //     } else if (notificationPermission === 'default') {
-    //       requestNotificationPermission();
-    //     }
-    //   };
 
     const handlereadzipfiles = async() => {
         invoke('read_zip_files', { zippath: zipName })
@@ -46,7 +31,7 @@ function Zip_extr() {
         setFileNames(response);
       })
       .catch(error => {
-        console.error('Error fetching file names:', error);
+        invoke('error_printer');
       },[]);
 
     }
@@ -57,7 +42,11 @@ function Zip_extr() {
         //     title: 'Extracting..',
         //     message: 'Zip is extracted...',
         //   });
-        
+        setShowAlert(true);
+
+        setTimeout(() => {
+          setShowAlert(false);
+        },3000);
                 
     };
     const handlePasswordChange = (event) => {
@@ -121,12 +110,17 @@ function Zip_extr() {
             
             <Button onClick={handleExtraction}>Extract zip</Button>
             <Button onClick={openModal}>Password test</Button>
+            {showAlert && (
+              <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
+        <Alert variant="light" color="blue" title="Alert title">
+          Zip extracted...
+        </Alert>
+        </div>
+      )}
             <ScrollArea w={300} h={200} scrollbars="x" type='hover'>
-      <Box w={600}>
         {<p>{responseMetadata}</p>}
-      </Box>
     </ScrollArea>       
-    <ScrollArea style={{ height: 300, width: 400 }}>
+    <ScrollArea style={{ height: 300, width: 700 }}>
       {fileNames.map((fileName, index) => (
         <div key={index}>{fileName}</div>
       ))}

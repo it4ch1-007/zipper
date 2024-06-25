@@ -4,10 +4,9 @@
   "private": true,
   "dependencies": {
     "@tauri-apps/api/dialog": "*",
-    "@mantine/notifications": "7.10.2",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.4",
-    "@mantine/core": "3.6.0",
+    "@mantine/core": "7.10.2",
     "@mantine/hooks": "*",
     "@mantine/styles": "^6.0.21",
     "@testing-library/jest-dom": "^5.17.0",
