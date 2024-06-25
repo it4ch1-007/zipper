@@ -6,13 +6,11 @@ import { Button } from '@mantine/core';
 import {Modal,TextInput} from '@mantine/core';
 import { invoke } from '@tauri-apps/api';
 import {Alert} from '@mantine/core';
-// import { Notification  } from '@mantine/core';
 
 
 function Zip_extr() {
     const location = useLocation();
     const {zipName} = location.state || {};
-    // const [opened, { open, close }] = useDisclosure(false);
     const [inputValue, setInputValue] = useState('hello default');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const openModal = () => setIsModalOpen(true);
@@ -21,7 +19,7 @@ function Zip_extr() {
     const [responseTree,setresponseTree] = useState('');
     const [fileNames, setFileNames] = useState([]);
     const [showAlert,setShowAlert] = useState(false);
-    // const [notificationPermission, setNotificationPermission] = useState('default');
+
 
     
 
@@ -37,11 +35,8 @@ function Zip_extr() {
     }
     const handleExtraction = async() =>{
         console.log("extract clicked");
-        invoke('extract_zip',{zippath:zipName});
-        // notifications.show({
-        //     title: 'Extracting..',
-        //     message: 'Zip is extracted...',
-        //   });
+        await invoke('extract_zip',{zippath:zipName});
+        await invoke('config_write',{zipPath:zipName});
         setShowAlert(true);
 
         setTimeout(() => {
@@ -50,8 +45,7 @@ function Zip_extr() {
                 
     };
     const handlePasswordChange = (event) => {
-        // console.log("called")
-        // console.log(event.currentTarget.value);
+        
         setInputValue(event.currentTarget.value);
       };
     const handlefilestree = async() => {
@@ -63,13 +57,10 @@ function Zip_extr() {
         catch{}
     }
     const handleSubmission = (event) => {
-        // console.log("password entered: ",inputValue);
-        // setInputValue(event.target.value);
         closeModal();
     };
     const handleMetadata = async () => {
         try{
-        // console.log("hello");
         const responseMetadata = await invoke('read_metadata',{archive: zipName});
         setresponseMetadata(responseMetadata);
         }

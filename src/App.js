@@ -18,7 +18,6 @@ import Exit from './Exit';
 function App() {
 
   const [zipName,setZipname] = useState('');
-  // const navigate = useNavigate();
   const views = [{
     path: '/',
     name: 'Home',
@@ -46,14 +45,14 @@ function App() {
     
   const [result,setResult] = useState('');
 
-  //nav bar
+  
   const [opened,setOpened] = useState(false);
   const defaultColorScheme = 'dark';
-  // console.log(defaultColorScheme);
+
   const [colorScheme,setColorScheme] = useState(defaultColorScheme);
   const [lines, setLines] = useState([]);
 
-  //fn for changing the colorScheme
+ 
   const toggleColorScheme = value => {
     const newValue = value || (colorScheme === 'dark' ? 'light': 'dark');
     setColorScheme(newValue);
@@ -64,8 +63,6 @@ function App() {
     try{
       const selectedPath = await open();
       console.log("Selected Path",selectedPath);
-      // setZipname(selectedPath);
-      // navigate('/Zip',{state: { zipName }});
     }
     catch (err){
       console.log(err);
@@ -158,30 +155,5 @@ function App() {
     </MantineProvider>
   );
 }
-
-
-
-
-  // const handlePrint = async () => {
-  //   try {
-  //     const response = await invoke('extract_zip',{path: "C:\\Users\\akshi\\Downloads\\filers.zip"});
-  //     setResult(response);
-  //     // alert('Zip file extracted successfully!');
-  //   } catch (error) {
-  //     setResult("error fetching the zip file!!");
-  //     // console.error('Failed to extract zip file:', error);
-  //     // alert('Failed to extract zip file');
-  //   }
-  // };
-
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <button onClick={handlePrint}>Print</button>
-//         <p> Result: {result}</p>
-//       </header>
-//     </div>
-//   );
-// }
 
 export default App;
