@@ -8,8 +8,6 @@ import { SunIcon,MoonIcon } from '@modulz/radix-icons';
 import {createStyles,useMantineTheme} from '@mantine/styles'
 import {MemoryRouter, NavLink, Route,Routes,useNavigate} from 'react-router-dom';
 import {open} from '@tauri-apps/api/dialog';
-
-
 import Zip_extr from './Zip_extr';
 import Home from './Home';
 import Settings from './Settings';

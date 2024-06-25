@@ -2,24 +2,39 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 
+use core::arch;
 use std::fs::{read, File, OpenOptions};
 use std::io::{self, BufRead,Write};
 use std::fs;
+use std::iter::zip;
+use serde::Serialize;
 use zip::result::ZipError;
 use zip::{CompressionMethod, ZipArchive};
 use std::io::BufReader;
-use std::path::Path;
-
+use std::path::{Path, PathBuf};
+use serde_json::Serializer;
 use zip::read::ZipFile;
 
+
+#[derive(Serialize)]
+struct ZipFileMetadata<'a>{
+  entries: usize,
+  comment: &'a [u8],
+  data_size: u64,
+  is_empty: bool,
+  total_size: u128,
+}
 struct var{
   flag:bool,
 }
-fn fn_nice(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
+fn fn_without_pswd(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
+  println!("Without pswd called");
   archive.by_index(i.try_into().unwrap()).unwrap()
+
   
 }
-fn fn_not_nice(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
+fn fn_pswd(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
+  println!("With pswd called..");
   let mut pswd = String::new();
   println!("The zip is password encrypted\nPlease Enter the Password: ");
   io::stdin().read_line(&mut pswd).expect("Error reading the user input");
@@ -27,7 +42,7 @@ fn fn_not_nice(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
 }
 fn main() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![config_read])
+    .invoke_handler(tauri::generate_handler![config_read,read_metadata,read_zip_files,extract_zip])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
@@ -39,9 +54,9 @@ where P: AsRef<Path>, {
 }
 
 #[tauri::command]
-fn basic_extrn(args: Vec<String>){
+fn extract_zip(zippath:String){
 
-  let zipname = std::path::Path::new(&*args[1]); //getting the dereference to get the value of the string but passing it as a reference to the actual function paramter.
+  let zipname = std::path::Path::new(&*zippath); //getting the dereference to get the value of the string but passing it as a reference to the actual function paramter.
   let file = File::open(&zipname).unwrap();
   let mut archive = zip::ZipArchive::new(file).unwrap(); //making a new instance of the zip file
   let mut password = "hello".to_string();
@@ -49,7 +64,7 @@ fn basic_extrn(args: Vec<String>){
   for i in 0..archive.len(){
     let mut new_archive = zip::ZipArchive::new(File::open(&zipname).unwrap()).unwrap();
       let file = match archive.by_index(i){
-          Ok(mut file) => fn_nice(i,&mut new_archive),
+          Ok(mut file) => fn_without_pswd(i,&mut new_archive),
           Err(err)=> 
               // ZipError::Io(_) => {
               //     eprintln!("IO error in opening the zip!! {:?}",err);
@@ -59,7 +74,7 @@ fn basic_extrn(args: Vec<String>){
               // }
               {
                 
-                  fn_not_nice(i,&mut new_archive)
+                  fn_pswd(i,&mut new_archive)
               //    archive.by_index_decrypt(i, &password.as_bytes()).expect("Failed!!!").unwrap()
               },
               
@@ -96,11 +111,62 @@ fn basic_extrn(args: Vec<String>){
 
 
 #[tauri::command]
-fn read_metadata(file:ZipFile){
-    println!("File name: {}",file.name());
-        println!("File size: {}",file.compressed_size());
-        println!("File size uncompressed: {}",file.size());
-        println!("Is directory: {}",file.is_dir());
+fn read_metadata(archive: String) -> String{
+      let file = File::open(archive).unwrap();
+      let mut zip_archive = ZipArchive::new(file).unwrap();
+      let num_entries = zip_archive.len();
+      let comment = zip_archive.comment();
+      let prepended_data_size = zip_archive.offset();
+      let is_empty = zip_archive.is_empty();
+      let total_files_size = zip_archive.decompressed_size().unwrap();
+      // for i in 0..num_entries{
+      // let aes_key = zip_archive.get_aes_verification_key_and_salt(i);
+      // }
+      let zip_metadata = ZipFileMetadata{
+        entries: num_entries,
+        comment:comment,
+        data_size: prepended_data_size,
+        is_empty: is_empty,
+        total_size: total_files_size,
+
+      };
+
+      serde_json::to_string(&zip_metadata).unwrap()
+}
+
+#[tauri::command]
+fn read_zip_files(zippath:String) -> Vec<PathBuf>{
+  let zipname = std::path::Path::new(&*zippath);
+  let mut return_vec: Vec<PathBuf> = vec![];
+  let file = File::open(&zipname).unwrap();
+  let mut archive = zip::ZipArchive::new(file).unwrap();
+  for i in 0..archive.len(){
+    let mut new_archive = zip::ZipArchive::new(File::open(&zipname).unwrap()).unwrap();
+      let file = match archive.by_index(i){
+          Ok(mut file) => fn_without_pswd(i,&mut new_archive),
+          Err(err)=> 
+              // ZipError::Io(_) => {
+              //     eprintln!("IO error in opening the zip!! {:?}",err);
+              // }
+              // ZipError::FileNotFound => {
+              //     eprint!("File not found!! {:?}",err);
+              // }
+              {
+                
+                  fn_pswd(i,&mut new_archive)
+              //    archive.by_index_decrypt(i, &password.as_bytes()).expect("Failed!!!").unwrap()
+              },
+              
+     
+      };
+      let outpath = match file.enclosed_name(){ //This resolves a security issue as here it checks whether the path is trying to get out of the directory or not
+
+        Some(path) => path.to_owned(), //borrowing the instance of the filepath
+        None => continue,
+      };
+      return_vec.push(outpath);
+}
+  return_vec
 }
 #[tauri::command]
 fn test_button()->String{
