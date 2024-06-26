@@ -4,37 +4,54 @@ import { Button, Group } from '@mantine/core';
 import { open } from '@tauri-apps/api/dialog';
 import { createStyles} from '@mantine/styles';
 import {NavLink,useNavigate} from 'react-router-dom';
+import {Modal,TextInput} from '@mantine/core';
 
 function Home() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [lines, setLines] = useState([]);
   const [zipName, setZipname] = useState('');
+  
+  
+  // const openModal = () => setIsModalOpen(true);
 
+
+ 
+  
+  
   useEffect(() => {
     async function fetchLines() {
       try {
         const response = await invoke('config_read');
         setLines(response);
       } catch (err) {
-        console.error(err);
+        // console.error(err);
       }
     }
     fetchLines();
   }, []);
 
   const handleopendialog = async () => {
-    console.log("button clicked");
+    // console.log("button clicked");
     try {
       const selectedPath = await open();
-      console.log("Selected Path", selectedPath);
+      // console.log("Selected Path", selectedPath);
       setZipname(selectedPath);
-      console.log(zipName);
+      // handlePriorCheck();
+      // console.log(zipName);
       navigate('/Zip_extr',{state: {zipName:selectedPath}});
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     }
   };
 
+  
+
+  const handledirectnavigation = async(zipPath) => {
+    // console.log("hello");
+    setZipname(zipPath);
+    navigate('/Zip_extr',{state: {zipName:zipPath}});
+    // console.log(zipPath);
+  };
   const useStyles = createStyles((theme) => ({
     navLink: {
       display: 'block',
@@ -60,11 +77,12 @@ function Home() {
       </Group>
       <Group direction="vertical" align="center" style={{ marginTop: '20px' }}>
         {lines.map((line, index) => (
-          <Button key={index} component={NavLink} className={classes.navLink} fullWidth>
+          <Button onClick={() => handledirectnavigation(line)} key={index} component={NavLink} className={classes.navLink} fullWidth>
             {line}
           </Button>
         ))}
       </Group>
+      
     </div>
   );
 }

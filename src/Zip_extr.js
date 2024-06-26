@@ -11,31 +11,54 @@ import {Alert} from '@mantine/core';
 function Zip_extr() {
     const location = useLocation();
     const {zipName} = location.state || {};
-    const [inputValue, setInputValue] = useState('hello default');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
+    const [inputValue, setInputValue] = useState('');
+    // const openModal = () => setIsModalOpen(false);
+    const closeModal = () => setshowPrompt(true);
     const [responseMetadata,setresponseMetadata] = useState('');
     const [responseTree,setresponseTree] = useState('');
     const [fileNames, setFileNames] = useState([]);
     const [showAlert,setShowAlert] = useState(false);
+    const [prompt,setshowPrompt] = useState(true);
+    const [variable,setVariable] = useState(false);
 
+    const handleSubmission = (event) => {
+      closeModal();
+  };
 
-    
-
+  const handlePasswordChange = (event) => {
+        
+    setInputValue(event.currentTarget.value);
+  };
     const handlereadzipfiles = async() => {
+      if(prompt){
         invoke('read_zip_files', { zippath: zipName })
       .then(response => {
         setFileNames(response);
       })
       .catch(error => {
         invoke('error_printer');
-      },[]);
 
+      }
+    
+    ,[]);
+      }
+      else{
+      invoke('read_zip_files_pswd', { zippath: zipName, pswd:inputValue })
+      .then(response => {
+        setFileNames(response);
+      })
+      .catch(error => {
+        invoke('error_printer_pswd');
+
+      }
+    
+    ,[]);
+      }
     }
     const handleExtraction = async() =>{
         console.log("extract clicked");
-        await invoke('extract_zip',{zippath:zipName});
+        // await invoke('extract_zip',{zippath:zipName});
         await invoke('config_write',{zipPath:zipName});
         setShowAlert(true);
 
@@ -44,21 +67,16 @@ function Zip_extr() {
         },3000);
                 
     };
-    const handlePasswordChange = (event) => {
-        
-        setInputValue(event.currentTarget.value);
-      };
-    const handlefilestree = async() => {
-        try{
-            console.log("tree fn called");
-            const responseTree = await invoke('read_zip_files', { zippath: zipName});
-            setresponseTree(responseTree);
-        }
-        catch{}
-    }
-    const handleSubmission = (event) => {
-        closeModal();
-    };
+   
+    // const handlefilestree = async() => {
+    //     try{
+    //         console.log("tree fn called");
+    //         const responseTree = await invoke('read_zip_files', { zippath: zipName});
+    //         setresponseTree(responseTree);
+    //     }
+    //     catch{}
+    // }
+    
     const handleMetadata = async () => {
         try{
         const responseMetadata = await invoke('read_metadata',{archive: zipName});
@@ -69,6 +87,15 @@ function Zip_extr() {
         }
 
     }
+    const handlePriorCheck = async() => {
+      
+      const response = await invoke('prior_check',{zippath:zipName});
+      if(!variable){
+        setVariable(true);
+        setshowPrompt(response);
+      }
+      
+  }
     useEffect(() => {
         const fetchData = async () => {
           try {
@@ -78,11 +105,13 @@ function Zip_extr() {
             console.log("Error fetching the zip name", err);
           }
         };
+        console.log(prompt);
           fetchData();
           handleMetadata();
+          handlePriorCheck();
           handlereadzipfiles();
 
-      }, [zipName]);
+      }, [zipName,prompt]);
     const useStyles = createStyles((theme) => ({
         scrollArea: {
           maxHeight: 50,
@@ -100,7 +129,6 @@ function Zip_extr() {
                 Zip:</h1> {zipName}<br></br>
             
             <Button onClick={handleExtraction}>Extract zip</Button>
-            <Button onClick={openModal}>Password test</Button>
             {showAlert && (
               <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
         <Alert variant="light" color="blue" title="Alert title">
@@ -115,18 +143,15 @@ function Zip_extr() {
       {fileNames.map((fileName, index) => (
         <div key={index}>{fileName}</div>
       ))}
-    </ScrollArea>     
-      <Modal opened={isModalOpen} onClose={closeModal} title="Password Test">
+    </ScrollArea>  
+    <Modal opened={!prompt} onClose={closeModal} title="Password Test">
         <TextInput
           label="Password"
           placeholder="Enter password"
           onChange={handlePasswordChange}
-          
         />
         <Button onClick={handleSubmission}>Submit</Button>
-      </Modal>
-      {/* <p>Zip Name: {zipName}<br/></p> */}
-      
+      </Modal>   
     </div>
     );
     

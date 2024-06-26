@@ -37,11 +37,7 @@ function App() {
       name: 'Exit',
       exact: true,
       component: Exit
-    },
-  {path: 'Zip_extr',
-      name: 'Zip_extr',
-      exact: true,
-      component: Zip_extr}]
+    }]
     
   const [result,setResult] = useState('');
 

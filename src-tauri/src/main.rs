@@ -1,11 +1,11 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-
+use std::sync::{Arc, Mutex};
 use core::arch;
 use std::fs::{read, File, OpenOptions};
 use std::io::{self, BufRead,Write};
-use std::fs;
+use std::{fs, result};
 use std::iter::zip;
 use serde::Serialize;
 use zip::result::ZipError;
@@ -14,6 +14,8 @@ use std::io::BufReader;
 use std::path::{Path, PathBuf};
 use serde_json::Serializer;
 use zip::read::ZipFile;
+use tauri;
+
 
 
 #[derive(Serialize)]
@@ -24,31 +26,44 @@ struct ZipFileMetadata<'a>{
   is_empty: bool,
   // total_size: u128,
 }
+struct file_writer{
+  vec_lines:Vec<String>,
+}
 struct var{
   flag:bool,
 }
 fn fn_without_pswd(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
+
   // println!("Without pswd called");
   archive.by_index(i.try_into().unwrap()).unwrap()
 
   
 }
+
+#[tauri::command]
+fn fn_prompt(){
+  // let app:tauri::AppHandle;
+  // app.emit_all("prompt_password", {}).unwrap();
+
+}
 fn fn_pswd(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
   let mut pswd = String::new();
+  println!("Wanted fn called::");
+
   // println!("The zip is password encrypted\nPlease Enter the Password: ");
   io::stdin().read_line(&mut pswd).expect("Error reading the user input");
   archive.by_index_decrypt(i,pswd.as_bytes()).unwrap()
 }
 fn main() {
   tauri::Builder::default()
-    .invoke_handler(tauri::generate_handler![config_read,read_metadata,read_zip_files,extract_zip,error_printer,config_write])
+    .invoke_handler(tauri::generate_handler![config_read,read_zip_files_pswd,read_metadata,read_zip_files,extract_zip,error_printer,config_write,prior_check])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
 #[tauri::command]
 fn config_write(zipPath:String){
   println!("config_write called");
-  let path = "C:\\Users\\akshi\\Downloads\\config.txt";
+  let path = "../utils/config.txt";
   let mut config_file = path;
   let mut vec_none: Vec<String> = vec![];
   // let reader = BufReader::new(config_file);
@@ -70,6 +85,7 @@ fn config_write(zipPath:String){
         }
           vec_lines.insert(0,zipPath);
           vec_lines.pop();
+         
           let mut output = OpenOptions::new()
             .write(true)
             .truncate(true)
@@ -77,13 +93,13 @@ fn config_write(zipPath:String){
         
         for line in &vec_lines{
 
-            println!("{}",line);
+            // println!("{}",line);
             // output.write(line.as_bytes()).expect("Error");
             writeln!(output,"{}",line);
         }
     }
-}
 
+}
 
 // //     // let reader = BufReader::new(config_file);
 // //     if let Ok(lines) = read_lines(config_file){
@@ -125,6 +141,13 @@ where P: AsRef<Path>, {
     Ok(io::BufReader::new(file).lines())
 }
 
+fn fn_ret_false()->bool{
+  println!("false fn called");
+  false
+}
+fn fn_error(){
+  println!("called");
+}
 #[tauri::command]
 fn extract_zip(zippath:String){
 
@@ -161,13 +184,13 @@ fn extract_zip(zippath:String){
 //now check for the folders inside the zip
   if(*file.name()).ends_with('/'){
   //if the file is not a folder
-    println!("File {} extracted to {:?}",i,outpath); //for displaying the path buffers we can also use outpath.display()
+    // println!("File {} extracted to {:?}",i,outpath); //for displaying the path buffers we can also use outpath.display()
     fs::create_dir_all(&outpath).unwrap();//passing a reference as parameter
 
   }
   else{
   //if the file is a folder
-    println!("File {} extracted to {:?} of {} bytes",i,outpath,file.size());
+    // println!("File {} extracted to {:?} of {} bytes",i,outpath,file.size());
     if let Some(p) = outpath.parent(){
         if !p.exists(){
            fs::create_dir_all(&p).unwrap();
@@ -181,6 +204,55 @@ fn extract_zip(zippath:String){
   }
 }
 
+#[tauri::command]
+fn prior_check(zippath:String) -> bool{
+  let zipname = std::path::Path::new(&*zippath);
+  let mut return_vec: Vec<PathBuf> = vec![];
+  let file = File::open(&zipname).unwrap();
+  let mut archive = zip::ZipArchive::new(file).unwrap();
+  for i in 0..archive.len(){
+    let mut new_archive = zip::ZipArchive::new(File::open(&zipname).unwrap()).unwrap();
+      let result =  archive.by_index(i);
+      match result{
+          Ok(file) => {continue;},
+          Err(err)=> 
+              // ZipError::Io(_) => {
+              //     eprintln!("IO error in opening the zip!! {:?}",err);
+              // }
+              // ZipError::FileNotFound => {
+              //     eprint!("File not found!! {:?}",err);
+              // }
+              {
+                // let app_handle = tauri::Manager::app.handle(&self);
+                  // fn_error();
+                  return fn_ret_false()
+              //    archive.by_index_decrypt(i, &password.as_bytes()).expect("Failed!!!").unwrap()
+              },
+            }
+          }
+          println!("true");
+          return true;
+}
+  
+
+#[tauri::command]
+fn read_zip_files_pswd(zippath:String,pswd:String) -> Vec<PathBuf>{
+  let zipname = std::path::Path::new(&*zippath);
+  let mut return_vec: Vec<PathBuf> = vec![];
+  let file = File::open(&zipname).unwrap();
+  let mut archive = zip::ZipArchive::new(file).unwrap();
+  for i in 0..archive.len(){
+    let mut new_archive = zip::ZipArchive::new(File::open(&zipname).unwrap()).unwrap();
+      let file =  archive.by_index_decrypt(i,pswd.as_bytes()).unwrap();
+      let outpath = match file.enclosed_name(){ //This resolves a security issue as here it checks whether the path is trying to get out of the directory or not
+
+        Some(path) => path.to_owned(), //borrowing the instance of the filepath
+        None => continue,
+      };
+      return_vec.push(outpath);
+}
+  return_vec
+}
 
 #[tauri::command]
 fn read_metadata(archive: String) -> String{
@@ -224,7 +296,7 @@ fn read_zip_files(zippath:String) -> Vec<PathBuf>{
               //     eprint!("File not found!! {:?}",err);
               // }
               {
-                
+                // let app_handle = tauri::Manager::app.handle(&self);
                   fn_pswd(i,&mut new_archive)
               //    archive.by_index_decrypt(i, &password.as_bytes()).expect("Failed!!!").unwrap()
               },
@@ -289,7 +361,23 @@ fn decode_utf16le(data: &str) -> io::Result<String> {
 
 #[tauri::command]
 fn config_read() -> Vec<String>{
-  let path = "C:\\Users\\akshi\\Downloads\\config.txt";
+  // let runtime_path = "C:\\Users\\akshi\\Downloads\\config.txt";
+  // let runtime_file = Path::new(runtime_path);
+  // let config_path = "C:\\Users\\akshi\\Downloads\\config.txt";
+  // if runtime_file.exists() {
+  //   if let Ok(metadata) = fs::metadata(runtime_file) {
+  //     if metadata.len() > 0 {
+  //         // Delete the existing config.txt if it exists
+  //         let config_file = Path::new(config_path);
+  //         if config_file.exists() {
+  //             fs::remove_file(config_file);
+  //         }
+  //         fs::rename(runtime_file, config_file);
+  //       }
+        
+  
+
+  let path = "../utils/config.txt";
   let mut config_file = path;
   let mut vec_none: Vec<String> = vec![];
   // let reader = BufReader::new(config_file);
@@ -304,7 +392,7 @@ fn config_read() -> Vec<String>{
                     .collect::<Vec<u16>>(); // Collect into a vector of u16
 
                 let utf8_line = String::from_utf16_lossy(&utf8_line); // Convert UTF-16 to UTF-8 string
-                println!("{:?}",utf8_line);
+                // println!("{:?}",utf8_line);
                 vec_lines.push(utf8_line);
                 
             }
@@ -319,8 +407,9 @@ fn config_read() -> Vec<String>{
   }
   else{
     vec_none.push("Error reading the config file".to_string());
-    println!("{:?}",vec_none);
+    // println!("{:?}",vec_none);
     vec_none
   }
   
 }
+
