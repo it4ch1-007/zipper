@@ -9,10 +9,11 @@ import {Alert} from '@mantine/core';
 
 
 function Zip_extr() {
+    let flag=false;
     const location = useLocation();
     const {zipName} = location.state || {};
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [inputValue, setInputValue] = useState('hello');
+    const [inputValue, setInputValue] = useState('trllo');
     // const openModal = () => setIsModalOpen(false);
     const closeModal = () => setshowPrompt(true);
     const [responseMetadata,setresponseMetadata] = useState('');
@@ -26,7 +27,9 @@ function Zip_extr() {
       closeModal();
       invoke('read_zip_files_pswd', { zippath: zipName, pswd: inputValue })
       .then(response => {
+        console.log("f;ag value: ",flag);
         setFileNames(response);
+        flag=true;
       })
       .catch(error => {
         invoke('error_printer_pswd');
@@ -38,9 +41,12 @@ function Zip_extr() {
     setInputValue(event.currentTarget.value);
   };
     const handlereadzipfiles = async() => {
+      
+      if(!flag){
+      flag=true;
       console.log("inside read zip files handler: ",prompt);
       if(prompt){
-        invoke('read_zip_files', { zippath: zipName })
+        invoke('read_zip_files', { zippath: zipName ,pswd:inputValue})
       .then(response => {
         setFileNames(response);
       })
@@ -52,11 +58,17 @@ function Zip_extr() {
     ,[]);
       }
     }
+    }
 
 
     const handleExtraction = async() =>{
         // console.log("extract clicked");
-        // await invoke('extract_zip',{zippath:zipName});
+        if(prompt){
+        await invoke('extract_zip',{zippath:zipName});
+        }
+        else{
+          await invoke('extract_zip_pswd',{zipPath:zipName,pswd:inputValue});
+        }
         await invoke('config_write',{zipPath:zipName});
         setShowAlert(true);
 
@@ -114,7 +126,7 @@ function Zip_extr() {
         if (prompt) {
           handlereadzipfiles();
         }
-      }, [zipName]);    
+      }, [zipName,prompt]);    
       const useStyles = createStyles((theme) => ({
         scrollArea: {
           maxHeight: 50,

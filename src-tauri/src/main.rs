@@ -27,33 +27,31 @@ struct ZipFileMetadata<>{
   is_empty: bool,
   // total_size: u128,
 }
+
+struct password{
+  pswd:String,
+}
 struct file_writer{
   vec_lines:Vec<String>,
 }
 struct var{
   flag:bool,
 }
-fn fn_without_pswd(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
-
-  // println!("Without pswd called");
-  archive.by_index(i.try_into().unwrap()).unwrap()
-
-  
+fn fn_without_pswd(i: usize, archive: &mut ZipArchive<File>) -> Result<ZipFile, ZipError> {
+  archive.by_index(i)
 }
 
-#[tauri::command]
-fn fn_prompt(){
-  // let app:tauri::AppHandle;
-  // app.emit_all("prompt_password", {}).unwrap();
 
-}
-fn fn_pswd(i:usize,archive:&mut ZipArchive<File>) -> zip::read::ZipFile{
-  let mut pswd = String::new();
+fn fn_pswd(i: usize, archive: &mut ZipArchive<File>,myPassword:password) -> Result<ZipFile, ZipError> {
   println!("Wanted fn called::");
 
-  // println!("The zip is password encrypted\nPlease Enter the Password: ");
-  io::stdin().read_line(&mut pswd).expect("Error reading the user input");
-  archive.by_index_decrypt(i,pswd.as_bytes()).unwrap()
+  match archive.by_index_decrypt(i, myPassword.pswd.as_bytes()) {
+      Ok(zip_file) => Ok(zip_file),
+      Err(e) => {
+          println!("Error decrypting the zip file: {:?}", e);
+          Err(e)
+      }
+  }
 }
 fn main() {
   tauri::Builder::default()
@@ -61,6 +59,75 @@ fn main() {
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
+
+#[tauri::command]
+fn extract_zip_pswd(zipPath:String,pswd:String){
+  
+  let zipname = std::path::Path::new(&*zipPath); //getting the dereference to get the value of the string but passing it as a reference to the actual function paramter.
+  let file = File::open(&zipname).unwrap();
+  let mut archive = zip::ZipArchive::new(file).unwrap(); //making a new instance of the zip file
+  let mut password = "hello".to_string();
+  let mut pass=pswd;
+  // let mut decrypted_file = ZipFile::new();
+  for i in 0..archive.len(){
+    let myPassword = password{
+      pswd:pass.clone(),
+    };
+    let mut new_archive = zip::ZipArchive::new(File::open(&zipname).unwrap()).unwrap();
+      let file = match archive.by_index_decrypt(i,pass.as_bytes()){
+          Ok(mut file) => fn_without_pswd(i,&mut new_archive),
+          Err(err)=> 
+              // ZipError::Io(_) => {
+              //     eprintln!("IO error in opening the zip!! {:?}",err);
+              // }
+              // ZipError::FileNotFound => {
+              //     eprint!("File not found!! {:?}",err);
+              // }
+              {
+                
+                  fn_pswd(i,&mut new_archive,myPassword)
+              //    archive.by_index_decrypt(i, &password.as_bytes()).expect("Failed!!!").unwrap()
+              },
+              
+     
+      }.unwrap();
+    let substring = zipPath.rsplitn(2, '\\').nth(1).expect("msg");
+  let mut outpath = PathBuf::new();
+  let sec_str = file.enclosed_name().expect("msg");
+  outpath.push(substring);
+  outpath.push(sec_str);
+  println!("{:?}",outpath);
+  //  match file.enclosed_name(){ //This resolves a security issue as here it checks whether the path is trying to get out of the directory or not
+
+  //     Some(path) => path.to_owned(), //borrowing the instance of the filepath
+  //     None => continue,
+  //   };
+    
+  
+
+//now check for the folders inside the zip
+  if(*file.name()).ends_with('/'){
+  //if the file is not a folder
+    // println!("File {} extracted to {:?}",i,outpath); //for displaying the path buffers we can also use outpath.display()
+    fs::create_dir_all(&outpath).unwrap();//passing a reference as parameter
+
+  }
+  else{
+  //if the file is a folder
+    // println!("File {} extracted to {:?} of {} bytes",i,outpath,file.size());
+    if let Some(p) = outpath.parent(){
+        if !p.exists(){
+           fs::create_dir_all(&p).unwrap();
+        }
+    }
+  let mut outFile = fs::File::create(&outpath).unwrap();
+  // fs::copy(&mut file,&outpath).unwrap(); //now copy the file into the zip to the file we just created in the new custom directory.
+
+    } 
+
+  }
+}
+
 #[tauri::command]
 fn config_write(zipPath:String){
   println!("config_write called");
@@ -150,16 +217,19 @@ fn fn_error(){
   println!("called");
 }
 #[tauri::command]
-fn extract_zip(zippath:String){
-
+fn extract_zip(zippath:String,pswd:String){
+  
   let zipname = std::path::Path::new(&*zippath); //getting the dereference to get the value of the string but passing it as a reference to the actual function paramter.
   let file = File::open(&zipname).unwrap();
   let mut archive = zip::ZipArchive::new(file).unwrap(); //making a new instance of the zip file
   let mut password = "hello".to_string();
-
+  let mut pass = pswd;
   // let mut decrypted_file = ZipFile::new();
   for i in 0..archive.len(){
     let mut new_archive = zip::ZipArchive::new(File::open(&zipname).unwrap()).unwrap();
+    let myPassword = password{
+      pswd:pass.clone(),
+    };
       let file = match archive.by_index(i){
           Ok(mut file) => fn_without_pswd(i,&mut new_archive),
           Err(err)=> 
@@ -171,13 +241,15 @@ fn extract_zip(zippath:String){
               // }
               {
                 
-                  fn_pswd(i,&mut new_archive)
+                  fn_pswd(i,&mut new_archive,myPassword)
               //    archive.by_index_decrypt(i, &password.as_bytes()).expect("Failed!!!").unwrap()
               },
               
      
-      };
-    let substring = zippath.rsplitn(2, '/').nth(1).expect("msg");
+      }.unwrap();
+  println!("zippath: {}",zippath);
+    let mut substring = zippath.rsplitn(2, '\\').nth(1).expect("msg");
+    println!("{}",substring);
   let mut outpath = PathBuf::new();
   let sec_str = file.enclosed_name().expect("msg");
   outpath.push(substring);
@@ -291,17 +363,22 @@ fn read_metadata(archive: String) -> String{
 }
 
 #[tauri::command]
-fn read_zip_files(zippath:String) -> Vec<PathBuf>{
+fn read_zip_files(zippath:String,pswd:String) -> Vec<PathBuf>{
   println!("read zip files called");
+  
   let zipname = std::path::Path::new(&*zippath);
   let mut return_vec: Vec<PathBuf> = vec![];
   let file = File::open(&zipname).unwrap();
   let mut archive = zip::ZipArchive::new(file).unwrap();
+  let mut pass = pswd;
   for i in 0..archive.len(){
+    let myPassword = password{
+      pswd:pass.clone(),
+    };
     let mut new_archive = zip::ZipArchive::new(File::open(&zipname).unwrap()).unwrap();
       let file = match archive.by_index(i){
-          Ok(mut file) => fn_without_pswd(i,&mut new_archive),
-          Err(err)=> 
+          Ok(_) => fn_without_pswd(i,&mut new_archive),
+          Err(_)=> 
               // ZipError::Io(_) => {
               //     eprintln!("IO error in opening the zip!! {:?}",err);
               // }
@@ -310,12 +387,12 @@ fn read_zip_files(zippath:String) -> Vec<PathBuf>{
               // }
               {
                 // let app_handle = tauri::Manager::app.handle(&self);
-                  fn_pswd(i,&mut new_archive)
+                  fn_pswd(i,&mut new_archive,myPassword)
               //    archive.by_index_decrypt(i, &password.as_bytes()).expect("Failed!!!").unwrap()
               },
               
      
-      };
+      }.unwrap();
       let outpath = match file.enclosed_name(){ //This resolves a security issue as here it checks whether the path is trying to get out of the directory or not
 
         Some(path) => path.to_owned(), //borrowing the instance of the filepath

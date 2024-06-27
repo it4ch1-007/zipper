@@ -5,12 +5,12 @@ import { open } from '@tauri-apps/api/dialog';
 import { createStyles} from '@mantine/styles';
 import {NavLink,useNavigate} from 'react-router-dom';
 import {Modal,TextInput} from '@mantine/core';
+import { Table, TableCell, TableRow,Text, Paper } from '@mantine/core';
 
 function Home() {
   const navigate = useNavigate();
   const [lines, setLines] = useState([]);
   const [zipName, setZipname] = useState('');
-  
   
   // const openModal = () => setIsModalOpen(true);
 
@@ -65,7 +65,24 @@ function Home() {
       },
     },
   }));
-
+  const barStyles = createStyles((theme) => ({
+    bar: {
+      height: '4px',
+      backgroundColor: theme.colors.blue[500], // Customize the bar color here
+      marginBottom: '10px', // Adjust spacing between bars
+    },
+  }));
+  const highlightedStyles = createStyles((theme) => ({
+    highlightedText: {
+      backgroundColor: theme.colors.blue[100], // Customize the highlight background color
+      padding: '8px',
+      display:'block',
+      width: '100%',
+      borderRadius: '4px',
+      marginBottom: '8px', // Adjust spacing between lines
+      textAlign: 'center',
+    },
+  }));
   const { classes } = useStyles();
 
   return (
@@ -75,13 +92,15 @@ function Home() {
       <Group position="center">
         <Button onClick={handleopendialog}>Open</Button>
       </Group>
-      <Group direction="vertical" align="center" style={{ marginTop: '20px' }}>
+      <Paper style={{ padding: '20px', maxWidth: '400px', margin: 'auto' }}>
+      <Group direction="vertical" align="center" style={{ marginTop: '20px',width: '100%' }}>
         {lines.map((line, index) => (
-          <Button onClick={() => handledirectnavigation(line)} key={index} component={NavLink} className={classes.navLink} fullWidth>
+          <Text key={index} className={highlightedStyles.highlightedText}>
             {line}
-          </Button>
+          </Text>
         ))}
       </Group>
+    </Paper>
       
     </div>
   );
