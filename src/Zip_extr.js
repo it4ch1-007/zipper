@@ -64,7 +64,7 @@ function Zip_extr() {
     const handleExtraction = async() =>{
         // console.log("extract clicked");
         if(prompt){
-        await invoke('extract_zip',{zippath:zipName});
+        await invoke('extract_zip',{zippath:zipName,pswd:inputValue});
         }
         else{
           await invoke('extract_zip_pswd',{zipPath:zipName,pswd:inputValue});
