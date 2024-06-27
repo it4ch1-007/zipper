@@ -12,18 +12,25 @@ function Zip_extr() {
     const location = useLocation();
     const {zipName} = location.state || {};
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [inputValue, setInputValue] = useState('');
+    const [inputValue, setInputValue] = useState('hello');
     // const openModal = () => setIsModalOpen(false);
     const closeModal = () => setshowPrompt(true);
     const [responseMetadata,setresponseMetadata] = useState('');
     const [responseTree,setresponseTree] = useState('');
     const [fileNames, setFileNames] = useState([]);
     const [showAlert,setShowAlert] = useState(false);
-    const [prompt,setshowPrompt] = useState(true);
+    const [prompt,setshowPrompt] = useState();
     const [variable,setVariable] = useState(false);
 
     const handleSubmission = (event) => {
       closeModal();
+      invoke('read_zip_files_pswd', { zippath: zipName, pswd: inputValue })
+      .then(response => {
+        setFileNames(response);
+      })
+      .catch(error => {
+        invoke('error_printer_pswd');
+      });
   };
 
   const handlePasswordChange = (event) => {
@@ -31,6 +38,7 @@ function Zip_extr() {
     setInputValue(event.currentTarget.value);
   };
     const handlereadzipfiles = async() => {
+      console.log("inside read zip files handler: ",prompt);
       if(prompt){
         invoke('read_zip_files', { zippath: zipName })
       .then(response => {
@@ -43,21 +51,11 @@ function Zip_extr() {
     
     ,[]);
       }
-      else{
-      invoke('read_zip_files_pswd', { zippath: zipName, pswd:inputValue })
-      .then(response => {
-        setFileNames(response);
-      })
-      .catch(error => {
-        invoke('error_printer_pswd');
-
-      }
-    
-    ,[]);
-      }
     }
+
+
     const handleExtraction = async() =>{
-        console.log("extract clicked");
+        // console.log("extract clicked");
         // await invoke('extract_zip',{zippath:zipName});
         await invoke('config_write',{zipPath:zipName});
         setShowAlert(true);
@@ -90,29 +88,34 @@ function Zip_extr() {
     const handlePriorCheck = async() => {
       
       const response = await invoke('prior_check',{zippath:zipName});
-      if(!variable){
-        setVariable(true);
         setshowPrompt(response);
-      }
+        console.log("Response given : ",response);
+
       
   }
     useEffect(() => {
         const fetchData = async () => {
           try {
-            console.log("Fetching data from the zip:", zipName);
+            // console.log("Fetching data from the zip:", zipName);
            
           } catch (err) {
-            console.log("Error fetching the zip name", err);
+            // console.log("Error fetching the zip name", err);
           }
         };
-        console.log(prompt);
+        // console.log(prompt);
           fetchData();
           handleMetadata();
           handlePriorCheck();
-          handlereadzipfiles();
+          
 
-      }, [zipName,prompt]);
-    const useStyles = createStyles((theme) => ({
+      }, [zipName]);
+      useEffect(() => {
+        console.log("value of prompt inside useEffect: ",prompt);
+        if (prompt) {
+          handlereadzipfiles();
+        }
+      }, [zipName]);    
+      const useStyles = createStyles((theme) => ({
         scrollArea: {
           maxHeight: 50,
           maxWidth: 50,

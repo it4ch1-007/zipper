@@ -15,13 +15,14 @@ use std::path::{Path, PathBuf};
 use serde_json::Serializer;
 use zip::read::ZipFile;
 use tauri;
+use std::str;
 
 
 
 #[derive(Serialize)]
-struct ZipFileMetadata<'a>{
+struct ZipFileMetadata<>{
   entries: usize,
-  comment: &'a [u8],
+  comment: String,
   data_size: u64,
   is_empty: bool,
   // total_size: u128,
@@ -63,7 +64,7 @@ fn main() {
 #[tauri::command]
 fn config_write(zipPath:String){
   println!("config_write called");
-  let path = "../utils/config.txt";
+  let path = "../src/utils/config.txt";
   let mut config_file = path;
   let mut vec_none: Vec<String> = vec![];
   // let reader = BufReader::new(config_file);
@@ -155,6 +156,7 @@ fn extract_zip(zippath:String){
   let file = File::open(&zipname).unwrap();
   let mut archive = zip::ZipArchive::new(file).unwrap(); //making a new instance of the zip file
   let mut password = "hello".to_string();
+
   // let mut decrypted_file = ZipFile::new();
   for i in 0..archive.len(){
     let mut new_archive = zip::ZipArchive::new(File::open(&zipname).unwrap()).unwrap();
@@ -175,12 +177,20 @@ fn extract_zip(zippath:String){
               
      
       };
+    let substring = zippath.rsplitn(2, '/').nth(1).expect("msg");
+  let mut outpath = PathBuf::new();
+  let sec_str = file.enclosed_name().expect("msg");
+  outpath.push(substring);
+  outpath.push(sec_str);
+  println!("{:?}",outpath);
+  //  match file.enclosed_name(){ //This resolves a security issue as here it checks whether the path is trying to get out of the directory or not
 
-  let outpath = match file.enclosed_name(){ //This resolves a security issue as here it checks whether the path is trying to get out of the directory or not
+  //     Some(path) => path.to_owned(), //borrowing the instance of the filepath
+  //     None => continue,
+  //   };
+    
+  
 
-      Some(path) => path.to_owned(), //borrowing the instance of the filepath
-      None => continue,
-    };
 //now check for the folders inside the zip
   if(*file.name()).ends_with('/'){
   //if the file is not a folder
@@ -237,6 +247,8 @@ fn prior_check(zippath:String) -> bool{
 
 #[tauri::command]
 fn read_zip_files_pswd(zippath:String,pswd:String) -> Vec<PathBuf>{
+  println!("read zip files with pswd called");
+  println!("{:?}",pswd.as_bytes());
   let zipname = std::path::Path::new(&*zippath);
   let mut return_vec: Vec<PathBuf> = vec![];
   let file = File::open(&zipname).unwrap();
@@ -259,7 +271,7 @@ fn read_metadata(archive: String) -> String{
       let file = File::open(archive).unwrap();
       let mut zip_archive = ZipArchive::new(file).unwrap();
       let num_entries = zip_archive.len();
-      let comment = zip_archive.comment();
+      let comment = std::str::from_utf8(zip_archive.comment()).unwrap().to_string();
       let prepended_data_size = zip_archive.offset();
       let is_empty = zip_archive.is_empty();
       // let total_files_size = zip_archive.decompressed_size().unwrap();
@@ -280,6 +292,7 @@ fn read_metadata(archive: String) -> String{
 
 #[tauri::command]
 fn read_zip_files(zippath:String) -> Vec<PathBuf>{
+  println!("read zip files called");
   let zipname = std::path::Path::new(&*zippath);
   let mut return_vec: Vec<PathBuf> = vec![];
   let file = File::open(&zipname).unwrap();
@@ -375,9 +388,10 @@ fn config_read() -> Vec<String>{
   //         fs::rename(runtime_file, config_file);
   //       }
         
-  
+  // let args: Vec<String> = std::env::args().collect();
+  // println!("{:?}",args[0]);
 
-  let path = "../utils/config.txt";
+  let path = "../src/utils/config.txt";
   let mut config_file = path;
   let mut vec_none: Vec<String> = vec![];
   // let reader = BufReader::new(config_file);

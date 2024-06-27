@@ -37,6 +37,12 @@ function App() {
       name: 'Exit',
       exact: true,
       component: Exit
+    },
+    {
+      path: 'Zip_extr',
+      name: 'Zip extraction',
+      exact: true,
+      component: Zip_extr
     }]
     
   const [result,setResult] = useState('');
