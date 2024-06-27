@@ -27,7 +27,7 @@ function Zip_extr() {
       closeModal();
       invoke('read_zip_files_pswd', { zippath: zipName, pswd: inputValue })
       .then(response => {
-        console.log("f;ag value: ",flag);
+        console.log("flag value: ",flag);
         setFileNames(response);
         flag=true;
       })
@@ -129,12 +129,12 @@ function Zip_extr() {
       }, [zipName,prompt]);    
       const useStyles = createStyles((theme) => ({
         scrollArea: {
-          maxHeight: 50,
-          maxWidth: 50,
           overflow: 'auto',
-          border: `1px solid ${theme.colors.gray[4]}`, // Optional: Add a border for better visibility
+          border: `1px solid ${theme.colors.dark[7]}`, // Optional: Add a border for better visibility
+          backgroundColor: theme.colors.dark[5],
         },
       }));
+      const {classes} = useStyles();
 
 
     return (
@@ -147,14 +147,18 @@ function Zip_extr() {
             {showAlert && (
               <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
         <Alert variant="light" color="blue" title="Alert title">
-          Zip extracted...
+          Zip {zipName} extracted in the same directory...
         </Alert>
         </div>
       )}
-            <ScrollArea w={300} h={200} scrollbars="x" type='hover'>
+      <p>Zip metadata: </p>
+            <ScrollArea w={300} h={200} scrollbars="x" type='hover' className={classes.scrollArea}>
         {<p>{responseMetadata}</p>}
     </ScrollArea>       
-    <ScrollArea style={{ height: 300, width: 700 }}>
+    <br></br>
+    <br></br>
+      <p>Zip Files tree: </p>
+    <ScrollArea style={{ height: 300, width: 700 }} className={classes.scrollArea}>
       {fileNames.map((fileName, index) => (
         <div key={index}>{fileName}</div>
       ))}

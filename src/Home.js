@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/tauri';
-import { Button, Group } from '@mantine/core';
+import { Button, Group, ScrollArea } from '@mantine/core';
 import { open } from '@tauri-apps/api/dialog';
 import { createStyles} from '@mantine/styles';
 import {NavLink,useNavigate} from 'react-router-dom';
@@ -87,12 +87,16 @@ function Home() {
 
   return (
     <div>
-      <h1>Home Page</h1>
-      <p>Welcome to the home page!</p>
+      <h1>Home</h1>
       <Group position="center">
         <Button onClick={handleopendialog}>Open</Button>
+        <br></br>
+        <br></br>
+        <br></br>
       </Group>
-      <Paper style={{ padding: '20px', maxWidth: '400px', margin: 'auto' }}>
+      <p align='center'>Recent Files Opened:</p>
+      <ScrollArea w={300} h={250}>
+      <Paper style={{ padding: '20px', maxWidth: '400px', margin: 'auto', height: '250px' }}>
       <Group direction="vertical" align="center" style={{ marginTop: '20px',width: '100%' }}>
         {lines.map((line, index) => (
           <Text key={index} className={highlightedStyles.highlightedText}>
@@ -101,6 +105,7 @@ function Home() {
         ))}
       </Group>
     </Paper>
+    </ScrollArea>
       
     </div>
   );
