@@ -9,6 +9,7 @@ import {Alert} from '@mantine/core';
 
 
 function Zip_extr() {
+
     let flag=false;//the variable to ensure that the read_zip_files function is called just once and to synchronize the updation of the prompt variable with the reading of the prompt variable
     const location = useLocation(); //capturing the props passed from Home.js
     const {zipName} = location.state || {}; //setting zipname to store the prop state 
@@ -32,34 +33,34 @@ function Zip_extr() {
       .catch(error => {
         invoke('error_printer_pswd');
       });
-  };
+    };
 
-  //When the password inside the inputValue text box is changed
-  const handlePasswordChange = (event) => {
+    //When the password inside the inputValue text box is changed
+    const handlePasswordChange = (event) => {
+          
+      setInputValue(event.currentTarget.value);
+    };
+
+    //To handle the reading of zip files in the case where the zip is not encrypted.
+    const handlereadzipfiles = async() => {
         
-    setInputValue(event.currentTarget.value);
-  };
+        if(!flag){
+        flag=true;
+        console.log("inside read zip files handler: ",prompt);
+        if(prompt){
+          invoke('read_zip_files', { zippath: zipName ,pswd:inputValue})
+        .then(response => {
+          setFileNames(response);
+        })
+        .catch(error => {
+          invoke('error_printer');
 
-  //To handle the reading of zip files in the case where the zip is not encrypted.
-  const handlereadzipfiles = async() => {
+        }
       
-      if(!flag){
-      flag=true;
-      console.log("inside read zip files handler: ",prompt);
-      if(prompt){
-        invoke('read_zip_files', { zippath: zipName ,pswd:inputValue})
-      .then(response => {
-        setFileNames(response);
-      })
-      .catch(error => {
-        invoke('error_printer');
-
+      ,[]);
+        }
       }
-    
-    ,[]);
       }
-    }
-    }
 
     //To handle the extraction of zip files in both cases encrypted and not encrypted.
     const handleExtraction = async() =>{
@@ -90,35 +91,37 @@ function Zip_extr() {
         }
 
     }
+
+
     //To check if the zip is encrypted or not
     const handlePriorCheck = async() => {
       
       const response = await invoke('prior_check',{zippath:zipName});
         setshowPrompt(response);
         //Sets the prompt variable to true if the zip not requires a password.
-
-      
   }
 
-    //To call some the handler functions as soon as the page loads
-    useEffect(() => {
-          handleMetadata();
-          handlePriorCheck();
-      }, [zipName]);
+      //To call some the handler functions as soon as the page loads
       useEffect(() => {
-        console.log("value of prompt inside useEffect: ",prompt);
-        if (prompt) {
-          handlereadzipfiles();
-        }
-      }, [zipName,prompt]);    
-      const useStyles = createStyles((theme) => ({
-        scrollArea: {
-          overflow: 'auto',
-          border: `1px solid ${theme.colors.dark[7]}`, // Optional: Add a border for better visibility
-          backgroundColor: theme.colors.dark[5],
-        },
-      }));
-      const {classes} = useStyles();
+            handleMetadata();
+            handlePriorCheck();
+        }, [zipName]);
+        useEffect(() => {
+          console.log("value of prompt inside useEffect: ",prompt);
+          if (prompt) {
+            handlereadzipfiles();
+          }
+        }, [zipName,prompt]);    
+
+
+    const useStyles = createStyles((theme) => ({
+      scrollArea: {
+        overflow: 'auto',
+        border: `1px solid ${theme.colors.dark[7]}`, // Optional: Add a border for better visibility
+        backgroundColor: theme.colors.dark[5],
+      },
+    }));
+    const {classes} = useStyles();
 
 
     return (

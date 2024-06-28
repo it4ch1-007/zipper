@@ -8,7 +8,7 @@ export default function Exit(){
     }
 
     useEffect(() => {
-        handleClose();
+        handleClose();//Exiting the main application window
     })
     return(
         <></>

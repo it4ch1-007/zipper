@@ -98,4 +98,4 @@ yarn tauri dev
 
 ### Future goals of the project
 
-In the future I am going to integrate the working of `bkcrack` tool that is able to crack a zip file without any password or even wordlist and also the bruteforcing option where the user can choose any wordlist of his own and crack the zip file without its password. 
+In the future I am going to integrate the working of `bkcrack` tool that is able to crack a zip file without any password or wordlist and also the bruteforcing option where the user can choose any wordlist of his own and crack the zip file without its password. 

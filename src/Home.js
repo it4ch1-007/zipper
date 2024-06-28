@@ -32,21 +32,7 @@ function Home() {
     } catch (err) {
     }
   };
-  // some custom styles
-  const useStyles = createStyles((theme) => ({
-    navLink: {
-      display: 'block',
-      width: '100%',
-      padding: theme.spacing.xs,
-      borderRadius: theme.radius.md,
-      color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
-      textDecoration: 'none',
-      '&:hover': {
-        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[1],
-      },
-    },
-  }));
-
+  
   //custom styles to highlight the ScrollArea
   const highlightedStyles = createStyles((theme) => ({
     highlightedText: {

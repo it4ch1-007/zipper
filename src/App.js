@@ -9,7 +9,6 @@ import {createStyles,useMantineTheme} from '@mantine/styles'
 import {MemoryRouter, NavLink, Route,Routes,useNavigate} from 'react-router-dom';
 import Zip_extr from './Zip_extr';
 import Home from './Home';
-import Settings from './Settings';
 import About from './About';
 import Exit from './Exit';
 
@@ -46,7 +45,6 @@ function App() {
   
   const [opened,setOpened] = useState(false); //Storing the state of the links 
   const defaultColorScheme = 'dark';
-
   const [colorScheme,setColorScheme] = useState(defaultColorScheme);//setting the colorscheme
 
  //Function to toggle the theme of the webpages
