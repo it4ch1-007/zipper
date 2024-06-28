@@ -14,14 +14,12 @@ function Zip_extr() {
     const {zipName} = location.state || {};
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [inputValue, setInputValue] = useState('trllo');
-    // const openModal = () => setIsModalOpen(false);
     const closeModal = () => setshowPrompt(true);
-    const [responseMetadata,setresponseMetadata] = useState('');
-    const [responseTree,setresponseTree] = useState('');
     const [fileNames, setFileNames] = useState([]);
     const [showAlert,setShowAlert] = useState(false);
     const [prompt,setshowPrompt] = useState();
-    const [variable,setVariable] = useState(false);
+    const [responseMetadata,setresponseMetadata] = useState('');
+    
 
     const handleSubmission = (event) => {
       closeModal();
@@ -62,7 +60,6 @@ function Zip_extr() {
 
 
     const handleExtraction = async() =>{
-        // console.log("extract clicked");
         if(prompt){
         await invoke('extract_zip',{zippath:zipName,pswd:inputValue});
         }
@@ -78,19 +75,12 @@ function Zip_extr() {
                 
     };
    
-    // const handlefilestree = async() => {
-    //     try{
-    //         console.log("tree fn called");
-    //         const responseTree = await invoke('read_zip_files', { zippath: zipName});
-    //         setresponseTree(responseTree);
-    //     }
-    //     catch{}
-    // }
     
     const handleMetadata = async () => {
         try{
         const responseMetadata = await invoke('read_metadata',{archive: zipName});
         setresponseMetadata(responseMetadata);
+        
         }
         catch(err){
             console.error("Failed to fetch metadata");
@@ -106,20 +96,8 @@ function Zip_extr() {
       
   }
     useEffect(() => {
-        const fetchData = async () => {
-          try {
-            // console.log("Fetching data from the zip:", zipName);
-           
-          } catch (err) {
-            // console.log("Error fetching the zip name", err);
-          }
-        };
-        // console.log(prompt);
-          fetchData();
           handleMetadata();
           handlePriorCheck();
-          
-
       }, [zipName]);
       useEffect(() => {
         console.log("value of prompt inside useEffect: ",prompt);
@@ -153,7 +131,7 @@ function Zip_extr() {
       )}
       <p>Zip metadata: </p>
             <ScrollArea w={300} h={200} scrollbars="x" type='hover' className={classes.scrollArea}>
-        {<p>{responseMetadata}</p>}
+        obj.entries
     </ScrollArea>       
     <br></br>
     <br></br>

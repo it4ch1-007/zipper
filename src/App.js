@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+
 import React,{useState,useEffect} from 'react';
 import {invoke} from '@tauri-apps/api/tauri';
 import './App.css';
@@ -7,7 +7,6 @@ import {Header} from '@mantine/core';
 import { SunIcon,MoonIcon } from '@modulz/radix-icons';
 import {createStyles,useMantineTheme} from '@mantine/styles'
 import {MemoryRouter, NavLink, Route,Routes,useNavigate} from 'react-router-dom';
-import {open} from '@tauri-apps/api/dialog';
 import Zip_extr from './Zip_extr';
 import Home from './Home';
 import Settings from './Settings';
@@ -18,6 +17,7 @@ import Exit from './Exit';
 function App() {
 
   const [zipName,setZipname] = useState('');
+  const [lines,setLines] = useState('');
   const views = [{
     path: '/',
     name: 'Home',
@@ -45,14 +45,12 @@ function App() {
       component: Zip_extr
     }]
     
-  const [result,setResult] = useState('');
 
   
   const [opened,setOpened] = useState(false);
   const defaultColorScheme = 'dark';
 
   const [colorScheme,setColorScheme] = useState(defaultColorScheme);
-  const [lines, setLines] = useState([]);
 
  
   const toggleColorScheme = value => {
@@ -60,16 +58,6 @@ function App() {
     setColorScheme(newValue);
   };
 
-  const handleopendialog = async () => {
-    console.log("button clicked");
-    try{
-      const selectedPath = await open();
-      console.log("Selected Path",selectedPath);
-    }
-    catch (err){
-      console.log(err);
-    }
-  };
 
   //adding some custom styles
   const useStyles = createStyles((theme) => ({
@@ -110,7 +98,6 @@ function App() {
         navbar = {
           <Navbar width = {{sm:200}} padding="xs" hidden={!opened} hiddenBreakpoint="sm">
           {
-            //this maps the given views array according to the given conditions
             views.map((view,index) =>  
               <NavLink align="left" to={view.path} key={index} onClick = {() => setOpened(false)} className = {({ isActive }) => classes.navLink + ' ' + (isActive ? classes.navLinkActive: '')}>
                 <Group>
