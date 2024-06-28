@@ -40,6 +40,13 @@ Download it from: `https://www.rust-lang.org/tools/install`.
 
 ```
 cd zipper/src-tauri/src
+
+yarn add @tauri-apps/api@* @emotion/cache@^11.11.0 @emotion/react@^11.11.4 @mantine/core@7.10.2 @mantine/hooks@* @mantine/styles@^6.0.21 @testing-library/jest-dom@^5.17.0 @testing-library/react@^13.4.0 @testing-library/user-event@^13.5.0 react@^18.3.1 react-dom@^18.3.1 react-router-dom@6 react-scripts@^3.0.1 web-vitals@^2.1.4 yarn@^1.22.22
+
+OR 
+
+yarn install
+
 yarn tauri dev
 ```
 
