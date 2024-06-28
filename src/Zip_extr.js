@@ -9,18 +9,18 @@ import {Alert} from '@mantine/core';
 
 
 function Zip_extr() {
-    let flag=false;
-    const location = useLocation();
-    const {zipName} = location.state || {};
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [inputValue, setInputValue] = useState('trllo');
-    const closeModal = () => setshowPrompt(true);
-    const [fileNames, setFileNames] = useState([]);
-    const [showAlert,setShowAlert] = useState(false);
-    const [prompt,setshowPrompt] = useState();
-    const [responseMetadata,setresponseMetadata] = useState('');
+    let flag=false;//the variable to ensure that the read_zip_files function is called just once and to synchronize the updation of the prompt variable with the reading of the prompt variable
+    const location = useLocation(); //capturing the props passed from Home.js
+    const {zipName} = location.state || {}; //setting zipname to store the prop state 
+    const [isModalOpen, setIsModalOpen] = useState(false); //Store the state of the password prompt modal
+    const [inputValue, setInputValue] = useState('trllo');//Store the inputvalue of the password 
+    const closeModal = () => setshowPrompt(true); //function that closes the modal 
+    const [fileNames, setFileNames] = useState([]);//store the filenames inside the zip to show in the file tree.
+    const [showAlert,setShowAlert] = useState(false);//show alert when the zip is extracted
+    const [prompt,setshowPrompt] = useState();//To store if the zip requires a password or not
+    const [responseMetadata,setresponseMetadata] = useState('');//Store the metadata of the zip file
     
-
+    //When submit is clicked inside the password prompt modal
     const handleSubmission = (event) => {
       closeModal();
       invoke('read_zip_files_pswd', { zippath: zipName, pswd: inputValue })
@@ -34,11 +34,14 @@ function Zip_extr() {
       });
   };
 
+  //When the password inside the inputValue text box is changed
   const handlePasswordChange = (event) => {
         
     setInputValue(event.currentTarget.value);
   };
-    const handlereadzipfiles = async() => {
+
+  //To handle the reading of zip files in the case where the zip is not encrypted.
+  const handlereadzipfiles = async() => {
       
       if(!flag){
       flag=true;
@@ -58,7 +61,7 @@ function Zip_extr() {
     }
     }
 
-
+    //To handle the extraction of zip files in both cases encrypted and not encrypted.
     const handleExtraction = async() =>{
         if(prompt){
         await invoke('extract_zip',{zippath:zipName,pswd:inputValue});
@@ -75,7 +78,7 @@ function Zip_extr() {
                 
     };
    
-    
+    //To handle the fetching of metadata and representing it as the JSON string
     const handleMetadata = async () => {
         try{
         const responseMetadata = await invoke('read_metadata',{archive: zipName});
@@ -87,14 +90,17 @@ function Zip_extr() {
         }
 
     }
+    //To check if the zip is encrypted or not
     const handlePriorCheck = async() => {
       
       const response = await invoke('prior_check',{zippath:zipName});
         setshowPrompt(response);
-        console.log("Response given : ",response);
+        //Sets the prompt variable to true if the zip not requires a password.
 
       
   }
+
+    //To call some the handler functions as soon as the page loads
     useEffect(() => {
           handleMetadata();
           handlePriorCheck();
@@ -136,11 +142,13 @@ function Zip_extr() {
     <br></br>
     <br></br>
       <p>Zip Files tree: </p>
+      {/* mapping the filenames inside the zip acdordingy with their path names */}
     <ScrollArea style={{ height: 300, width: 700 }} className={classes.scrollArea}>
       {fileNames.map((fileName, index) => (
         <div key={index}>{fileName}</div>
       ))}
     </ScrollArea>  
+    {/* Showing the prompt password modal only if the password is required by the zip */}
     <Modal opened={!prompt} onClose={closeModal} title="Password Test">
         <TextInput
           label="Password"

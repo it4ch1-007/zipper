@@ -7,9 +7,11 @@ import {useNavigate} from 'react-router-dom';
 import {Text, Paper } from '@mantine/core';
 
 function Home() {
-  const navigate = useNavigate();
-  const [lines, setLines] = useState([]);
-  const [zipName, setZipname] = useState('');
+  const navigate = useNavigate(); //To navigate to other webpages using states or functions
+  const [lines, setLines] = useState([]); //To store the lines inside the configuration file having the zip names recently visited.
+  const [zipName, setZipname] = useState(''); //Store the zipname
+
+  //Calling the functions to read the file whenever the page is loaded.
   useEffect(() => {
     async function fetchLines() {
       try {
@@ -21,14 +23,16 @@ function Home() {
     fetchLines();
   }, []);
 
+  //To open the file dialog box and navigate to Zip_extr.js
   const handleopendialog = async () => {
     try {
       const selectedPath = await open();
       setZipname(selectedPath);
-      navigate('/Zip_extr',{state: {zipName:selectedPath}});
+      navigate('/Zip_extr',{state: {zipName:selectedPath}}); //navigate to Zip_extraction page with the zipname passed as a prop
     } catch (err) {
     }
   };
+  // some custom styles
   const useStyles = createStyles((theme) => ({
     navLink: {
       display: 'block',
@@ -42,6 +46,8 @@ function Home() {
       },
     },
   }));
+
+  //custom styles to highlight the ScrollArea
   const highlightedStyles = createStyles((theme) => ({
     highlightedText: {
       backgroundColor: theme.colors.blue[100], // Customize the highlight background color
@@ -66,6 +72,7 @@ function Home() {
       <p align='center'>Recent Files Opened:</p>
       <ScrollArea w={300} h={250}>
       <Paper style={{ padding: '20px', maxWidth: '400px', margin: 'auto', height: '250px' }}>
+        {/* Mapping the zip file names inside the config.txt */}
       <Group direction="vertical" align="center" style={{ marginTop: '20px',width: '100%' }}>
         {lines.map((line, index) => (
           <Text key={index} className={highlightedStyles.highlightedText}>

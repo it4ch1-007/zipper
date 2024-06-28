@@ -16,17 +16,14 @@ import Exit from './Exit';
 
 function App() {
 
-  const [zipName,setZipname] = useState('');
+  const [zipName,setZipname] = useState('');//to store the state of zip name chosen by the user.
   const [lines,setLines] = useState('');
   const views = [{
     path: '/',
     name: 'Home',
     exact: true,
     component: Home
-  },{path: 'settings',
-    name: 'Settings',
-    exact: true,
-    component: Settings},
+  },
     {
       path: 'about',
       name: 'About',
@@ -47,12 +44,12 @@ function App() {
     
 
   
-  const [opened,setOpened] = useState(false);
+  const [opened,setOpened] = useState(false); //Storing the state of the links 
   const defaultColorScheme = 'dark';
 
-  const [colorScheme,setColorScheme] = useState(defaultColorScheme);
+  const [colorScheme,setColorScheme] = useState(defaultColorScheme);//setting the colorscheme
 
- 
+ //Function to toggle the theme of the webpages
   const toggleColorScheme = value => {
     const newValue = value || (colorScheme === 'dark' ? 'light': 'dark');
     setColorScheme(newValue);
@@ -78,6 +75,7 @@ function App() {
     }
   }));
 
+  //calling the function to read the config.txt file as soon as the homepage appears.
   const { classes } = useStyles();
   useEffect(() => {
     async function fetchLines() {
@@ -123,6 +121,7 @@ function App() {
                </MediaQuery>
                <Text tt="uppercase" ta="center"> Zipper </Text>
                <div style={{marginLeft: "auto"}}>
+               {/* Adding the icon to toggle the theme */}
                 <ActionIcon variant="default" onClick={() => toggleColorScheme()} size={30}>
                   {colorScheme === 'dark' ? <SunIcon/> : <MoonIcon/>}
                 </ActionIcon>
