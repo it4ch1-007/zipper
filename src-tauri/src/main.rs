@@ -42,6 +42,7 @@ fn fn_pswd(i: usize, archive: &mut ZipArchive<File>,myPassword:password) -> Resu
   }
 }
 
+// Main entry point for the Tauri application
 //Getting all the tauri command functions inside the invoke handler method
 fn main() {
   tauri::Builder::default()
@@ -58,6 +59,7 @@ where P: AsRef<Path>, {
     Ok(io::BufReader::new(file).lines())
 }
 
+/// Helper function that always returns false
 //Another helper function for error handling
 fn fn_ret_false()->bool{
   false

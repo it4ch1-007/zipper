@@ -60,6 +60,42 @@ yarn tauri dev
 
 - Click on the `Extract` button to extract the zip file in the same directory as the zip file.
 
+### Demo Screenshots
+
+
+- Home page
+
+![alt text](image-1.png)
+
+- Opening the file dialog box
+
+![alt text](<Screenshot 2024-06-28 210535.png>)
+
+- Showing the zip metadata and the zip files tree
+
+![alt text](<Screenshot 2024-06-28 210606.png>)
+
+- Alert when the zip is extracted 
+
+![alt text](<Screenshot 2024-06-28 210627.png>)
+
+- Showing the extracted files in the same directory.
+
+![alt text](<Screenshot 2024-06-28 210653.png>)
+
+- Password prompt for the encrypted zip files
+
+![alt text](<Screenshot 2024-06-28 210717.png>)
+
+- Extracting the encrypted zip files after entering the right password. If wrong password is entered then the application will exit immediately.
+
+![alt text](<Screenshot 2024-06-28 210730.png>)
+
+- Showing the updated home page when we extracted the 2 zip files shown:
+
+![alt text](<Screenshot 2024-06-28 210759.png>)
+
+
 ### Future goals of the project
 
 In the future I am going to integrate the working of `bkcrack` tool that is able to crack a zip file without any password or even wordlist and also the bruteforcing option where the user can choose any wordlist of his own and crack the zip file without its password. 

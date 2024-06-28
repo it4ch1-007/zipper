@@ -11,6 +11,6 @@ export default function Exit(){
         handleClose();
     })
     return(
-        <Text>Exit</Text>
+        <></>
     )
 }
