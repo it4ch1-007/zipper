@@ -131,7 +131,7 @@ function Zip_extr() {
       )}
       <p>Zip metadata: </p>
             <ScrollArea w={300} h={200} scrollbars="x" type='hover' className={classes.scrollArea}>
-        obj.entries
+        {responseMetadata}
     </ScrollArea>       
     <br></br>
     <br></br>

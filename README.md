@@ -1,70 +1,58 @@
-# Getting Started with Create React App
+# Zipper
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## A Rust based zip analysis and extraction tool
 
-## Available Scripts
 
-In the project directory, you can run:
+A zip extraction tool that not only provides all the features of a typical zip extraction tool like 7zip but also provides user-friendly features like reading the metadata of the central directory of the zip archive and decrypting the zip with password prompts.It also saves time by showing the user all the zip files recently opened.
 
-### `npm start`
+The tool is entirely based on the Tauri framework of Rust that is used for integration of frontend of ReactJS to the Rust backend in an efficient and easy manner. 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Installation
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+You can install zipper directly from its source code `git clone https://github.com/it4ch1-007/zipper.git` and run the following commands in your system:
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- If you donot have Node.js:
 
-### `npm run build`
+ Download it from: 
+ 
+  https://nodejs.org/en/download/package-manager
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Now install yarn using: 
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+`npm install --global yarn`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+or 
 
-### `npm run eject`
+Download it from:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+https://classic.yarnpkg.com/lang/en/docs/install/#windows-stable
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- If you donot have Rust installed:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Download it from: `https://www.rust-lang.org/tools/install`.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- Now install tauri framework using:
 
-## Learn More
+``
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Now to build the project execute the commands:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```
+cd zipper/src-tauri/src
+yarn tauri dev
+```
 
-### Code Splitting
+### Using Zipper
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- At the home page Zipper gives us the names of all those zip files that we have extracted recently using it. 
 
-### Analyzing the Bundle Size
+- Click the `Open` button to open the dialog box and choose the zipfile of your choice to see its metadata and files inside it.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- If in any case the zip is encrypted then a prompt will ask for the password to enter for the zip. If it is correct then the zip will be unlocked however if the password is wrong then Zipper will exit immediately.
 
-### Making a Progressive Web App
+- Click on the `Extract` button to extract the zip file in the same directory as the zip file.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Future goals of the project
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+In the future I am going to integrate the working of `bkcrack` tool that is able to crack a zip file without any password or even wordlist and also the bruteforcing option where the user can choose any wordlist of his own and crack the zip file without its password. 

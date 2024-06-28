@@ -33,17 +33,17 @@ function App() {
       exact: true,
       component: About
     },{
-      path: 'exit',
-      name: 'Exit',
-      exact: true,
-      component: Exit
-    },
-    {
       path: 'Zip_extr',
       name: 'Zip extraction',
       exact: true,
       component: Zip_extr
-    }]
+    },{
+      path: 'exit',
+      name: 'Exit',
+      exact: true,
+      component: Exit
+    }
+    ]
     
 
   
@@ -121,7 +121,7 @@ function App() {
                   mr= "xl"
                   />
                </MediaQuery>
-               <Text tt="uppercase" ta="center"> Welcome.... </Text>
+               <Text tt="uppercase" ta="center"> Zipper </Text>
                <div style={{marginLeft: "auto"}}>
                 <ActionIcon variant="default" onClick={() => toggleColorScheme()} size={30}>
                   {colorScheme === 'dark' ? <SunIcon/> : <MoonIcon/>}
