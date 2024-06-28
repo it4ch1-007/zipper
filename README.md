@@ -65,35 +65,35 @@ yarn tauri dev
 
 - Home page
 
-![alt text](image-1.png)
+![alt text](utils_images/image-1.png)
 
 - Opening the file dialog box
 
-![alt text](<Screenshot 2024-06-28 210535.png>)
+![alt text](utils_images/image-2.png)
 
 - Showing the zip metadata and the zip files tree
 
-![alt text](<Screenshot 2024-06-28 210606.png>)
+![alt text](utils_images/image-3.png)
 
 - Alert when the zip is extracted 
 
-![alt text](<Screenshot 2024-06-28 210627.png>)
+![alt text](utils_images/image-4.png)
 
 - Showing the extracted files in the same directory.
 
-![alt text](<Screenshot 2024-06-28 210653.png>)
+![alt text](utils_images/image-5.png)
 
 - Password prompt for the encrypted zip files
 
-![alt text](<Screenshot 2024-06-28 210717.png>)
+![alt text](utils_images/image-6.png)
 
 - Extracting the encrypted zip files after entering the right password. If wrong password is entered then the application will exit immediately.
 
-![alt text](<Screenshot 2024-06-28 210730.png>)
+![alt text](utils_images/image-7.png)
 
 - Showing the updated home page when we extracted the 2 zip files shown:
 
-![alt text](<Screenshot 2024-06-28 210759.png>)
+![alt text](utils_images/image-8.png)
 
 
 ### Future goals of the project
