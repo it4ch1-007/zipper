@@ -55,7 +55,7 @@ function Home() {
         <br></br>
         <br></br>
       </Group>
-      <p align='center'>Recent Files Opened:</p>
+      <p align='center'>Recent Files Extracted:</p>
       <ScrollArea w={300} h={250}>
       <Paper style={{ padding: '20px', maxWidth: '400px', margin: 'auto', height: '250px' }}>
         {/* Mapping the zip file names inside the config.txt */}
