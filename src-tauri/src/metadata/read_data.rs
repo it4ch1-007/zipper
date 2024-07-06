@@ -1,11 +1,6 @@
-use std::fs::{File, OpenOptions};
-use std::io::{self, BufRead,Write};
-use std::{fs};
+use std::fs::{File};
 use serde::Serialize;
-use zip::result::ZipError;
 use zip::{ZipArchive};
-use std::path::{Path, PathBuf};
-use zip::read::ZipFile;
 use tauri;
 
 //Struct to represent metadata of the zip

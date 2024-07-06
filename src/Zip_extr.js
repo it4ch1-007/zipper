@@ -13,8 +13,7 @@ function Zip_extr() {
     let flag=false;//the variable to ensure that the read_zip_files function is called just once and to synchronize the updation of the prompt variable with the reading of the prompt variable
     const location = useLocation(); //capturing the props passed from Home.js
     const {zipName} = location.state || {}; //setting zipname to store the prop state 
-    const [isModalOpen, setIsModalOpen] = useState(false); //Store the state of the password prompt modal
-    const [inputValue, setInputValue] = useState('trllo');//Store the inputvalue of the password 
+    const [inputValue, setInputValue] = useState('trello');//Store the inputvalue of the password 
     const closeModal = () => setshowPrompt(true); //function that closes the modal 
     const [fileNames, setFileNames] = useState([]);//store the filenames inside the zip to show in the file tree.
     const [showAlert,setShowAlert] = useState(false);//show alert when the zip is extracted
@@ -97,8 +96,8 @@ function Zip_extr() {
     const handlePriorCheck = async() => {
       
       const response = await invoke('prior_check',{zippath:zipName});
-        setshowPrompt(response);
-        //Sets the prompt variable to true if the zip not requires a password.
+      setshowPrompt(response);
+      //Sets the prompt variable to true if the zip not requires a password.
   }
 
       //To call some the handler functions as soon as the page loads
@@ -106,12 +105,12 @@ function Zip_extr() {
             handleMetadata();
             handlePriorCheck();
         }, [zipName]);
-        useEffect(() => {
+      useEffect(() => {
           console.log("value of prompt inside useEffect: ",prompt);
           if (prompt) {
             handlereadzipfiles();
           }
-        }, [zipName,prompt]);    
+        }, [zipName,prompt]);
 
 
     const useStyles = createStyles((theme) => ({
@@ -152,7 +151,7 @@ function Zip_extr() {
       ))}
     </ScrollArea>  
     {/* Showing the prompt password modal only if the password is required by the zip */}
-    <Modal opened={!prompt} onClose={closeModal} title="Password Test">
+    <Modal opened={!prompt} onClose={closeModal} title="Zip Password">
         <TextInput
           label="Password"
           placeholder="Enter password"

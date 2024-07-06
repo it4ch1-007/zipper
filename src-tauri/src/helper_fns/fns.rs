@@ -69,5 +69,5 @@ pub fn prior_check(zippath:String) -> bool{
         
           }
          
-          return true; //the zipfile requires password and is encrypted
+        return true; //the zipfile requires password and is encrypted
 }
