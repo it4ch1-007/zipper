@@ -60,6 +60,10 @@ yarn tauri dev
 
 - Click on the `Extract` button to extract the zip file in the same directory as the zip file.
 
+### Demo video
+
+[![Video]]([http://www.youtube.com/watch?v=YOUR_VIDEO_ID_HERE](https://www.youtube.com/watch?v=1qEU_QrY6qs&ab_channel=AKSHITSINGH))
+
 ### Demo Screenshots
 
 
