@@ -62,7 +62,7 @@ yarn tauri dev
 
 ### Demo video
 
-[![Video](https://www.youtube.com/watch?v=1qEU_QrY6qs&ab_channel=AKSHITSINGH/0.jpg)](https://www.youtube.com/watch?v=1qEU_QrY6qs&ab_channel=AKSHITSINGH)
+[![Video](utils_images/image-1.png)](https://www.youtube.com/watch?v=1qEU_QrY6qs&ab_channel=AKSHITSINGH)
 
 
 ### Demo Screenshots
